@@ -1,24 +1,19 @@
-require('dotenv').config();
-const express = require('express');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const postRoutes = require('./routes/posts');
+// server.js
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+import postRoutes from './routes/posts.js'; // Add .js here
+
+dotenv.config();
 
 const app = express();
-
-// Middleware
-app.use(bodyParser.json({ limit: '30mb', extended: true }));
-app.use(bodyParser.urlencoded({ limit: '30mb', extended: true }));
+app.use(express.json());
 app.use(cors());
-
-// Routes
 app.use('/posts', postRoutes);
 
-// MongoDB Connection
-const CONNECTION_URL = process.env.MONGODB_URI;
-const PORT = process.env.PORT || 5000;
-
-mongoose.connect(CONNECTION_URL)
-  .then(() => app.listen(PORT, () => console.log(`Server running on port: ${PORT}`)))
-  .catch((error) => console.log(error.message));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => app.listen(process.env.PORT || 5000, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
+  }))
+  .catch(err => console.log(err));

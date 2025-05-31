@@ -1,6 +1,5 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const Post = require('../models/Post');
+import express from 'express';
+import Post from '../models/Post.js';
 
 const router = express.Router();
 
@@ -68,4 +67,4 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
