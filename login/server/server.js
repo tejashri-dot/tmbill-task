@@ -1,74 +1,48 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const morgan = require('morgan');
-const colors = require('colors');
-const cors = require('cors');
-const helmet = require('helmet');
-const xss = require('xss-clean');
-const rateLimit = require('express-rate-limit');
-const hpp = require('hpp');
-const mongoSanitize = require('express-mongo-sanitize');
-const connectDB = require('./config/db');
-const errorHandler = require('./middleware/error');
+import express from 'express';
+import dotenv from 'dotenv';
+import morgan from 'morgan';
+import colors from 'colors';
+import cors from 'cors';
+import helmet from 'helmet';
+import xss from 'xss-clean';
+import rateLimit from 'express-rate-limit';
+import hpp from 'hpp';
+import mongoSanitize from 'express-mongo-sanitize';
+import connectDB from './config/db.js';
+import errorHandler from './middleware/error.js';
+import authRoutes from './routes/authRoutes.js';
 
-// Load env vars
-dotenv.config({ path: './config/config.env' });
-
-// Connect to database
+dotenv.config({ path: './.env' });
 connectDB();
 
-// Route files
-const auth = require('./routes/authRoutes');
-
 const app = express();
-
-// Body parser
 app.use(express.json());
+app.use(cors());
 
-// Dev logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Sanitize data
 app.use(mongoSanitize());
-
-// Set security headers
 app.use(helmet());
-
-// Prevent XSS attacks
 app.use(xss());
+app.use(hpp());
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 mins
+  windowMs: 10 * 60 * 1000,
   max: 100,
 });
 app.use(limiter);
 
-// Prevent http param pollution
-app.use(hpp());
-
-// Enable CORS
-app.use(cors());
-
-// Mount routers
-app.use('/api/v1/auth', auth);
-
+app.use('/api/v1/auth', authRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-
-const server = app.listen(
-  PORT,
-  console.log(
-    `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold
-  )
+const server = app.listen(PORT, () =>
+  console.log(`Server running on port ${PORT}`.yellow.bold)
 );
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
+process.on('unhandledRejection', (err) => {
   console.log(`Error: ${err.message}`.red);
-  // Close server & exit process
   server.close(() => process.exit(1));
 });

@@ -1,12 +1,12 @@
-const ErrorResponse = require('../utils/errorResponse');
-const User = require('../models/User');
-const sendEmail = require('../utils/sendEmail');
-const crypto = require('crypto');
+import ErrorResponse from '../utils/errorResponse.js';
+import User from '../models/User.js';
+import sendEmail from '../utils/sendEmail.js';
+import crypto from 'crypto';
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
 // @access  Public
-exports.register = async (req, res, next) => {
+export  const register = async (req, res, next) => {
   const { username, email, password } = req.body;
 
   try {
@@ -25,7 +25,7 @@ exports.register = async (req, res, next) => {
 // @desc    Login user
 // @route   POST /api/v1/auth/login
 // @access  Public
-exports.login = async (req, res, next) => {
+export const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -54,7 +54,7 @@ exports.login = async (req, res, next) => {
 // @desc    Get current logged in user
 // @route   GET /api/v1/auth/me
 // @access  Private
-exports.getMe = async (req, res, next) => {
+export const getMe = async (req, res, next) => {
   const user = await User.findById(req.user.id);
 
   res.status(200).json({
@@ -66,7 +66,7 @@ exports.getMe = async (req, res, next) => {
 // @desc    Log user out / clear cookie
 // @route   GET /api/v1/auth/logout
 // @access  Private
-exports.logout = async (req, res, next) => {
+export const logout = async (req, res, next) => {
   res.cookie('token', 'none', {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
